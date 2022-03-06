@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+
+require __DIR__.'/auth.php';
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('dashboard', ChatController::class)->names('dashboard');;
 });
