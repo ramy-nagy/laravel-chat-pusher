@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 use App\Http\Requests\StoreChatRequest;
 use App\Http\Requests\UpdateChatRequest;
 use Auth;
+use App\Events\Chat as chat_event;
+
 class ChatController extends Controller
 {
     public function __construct()
     {
-    $this->middleware('auth');
+        $this->middleware('auth');
     }
 
     /**
@@ -21,10 +24,11 @@ class ChatController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {//->
-        //return$Messages = Auth::user()->messages()->get();
-        //return Auth::user()->with('messages')->first();
-        return view('dashboard');
+    {
+        $fetch_my_messages = Auth::user()->messages()->get();
+        $active_users = User::where('id', '<>' ,auth()->id())->latest()->take(7)->get();
+        //$fetch_others_messages = chats::where('chat_id', $this->received_id)->with('messageable')->where('messageable_id', Auth::id())->get();
+        return view('dashboard', compact('fetch_my_messages', 'active_users'));
     }
 
     /**
@@ -43,9 +47,16 @@ class ChatController extends Controller
      * @param  \App\Http\Requests\StoreChatRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreChatRequest $request)
+    public function store(Request $request)
     {
-        //
+        $user = Auth::user();
+
+        $message = $user->messages()->create([
+            'message' => $request->message,
+            'chat_id' => $request->received_id 
+        ]);
+        broadcast(new chat_event($user, $message))->toOthers();
+        return "true";
     }
 
     /**

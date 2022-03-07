@@ -15,7 +15,7 @@ use App\Models\Chat As Chats;
 class Chat implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $message;
+    public $message, $user;
 
     /**
      * Create a new event instance.
@@ -35,7 +35,9 @@ class Chat implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('chat');
+        //return new PChannel('chat');
+        return new PrivateChannel('chat');
+
     }
 
     public function broadcastAs()

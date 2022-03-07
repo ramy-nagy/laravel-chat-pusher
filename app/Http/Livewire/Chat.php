@@ -20,7 +20,7 @@ class Chat extends Component
     {
         $this->received_id = $id;
         $this->chat_open = true;
-        $this->fetch_my_messages = Auth::user()->messages()->where('chat_id', $id)->get();
+        //$this->fetch_my_messages = Auth::user()->messages()->where('chat_id', $id)->get();
         //$this->fetch_others_messages = chats::where('chat_id', $id)->with('messageable')->where('messageable_id', Auth::id())->get();
 
         // $this->dispatchBrowserEvent('alert',[
@@ -48,9 +48,13 @@ class Chat extends Component
     }
     public function render()
     {
+        if($this->received_id){
+            $this->fetch_my_messages = Auth::user()->messages()->where('chat_id', $this->received_id)->get();
+            $this->fetch_others_messages = chats::where('chat_id', $this->received_id)->with('messageable')->where('messageable_id', Auth::id())->get();
+        }
         $fetch_my_messages = $this->fetch_my_messages ;
         $fetch_others_messages = $this->fetch_others_messages ;
-        $active_users = User::where('id', '<>' ,auth()->id())->take(7)->get();
+        $active_users = User::where('id', '<>' ,auth()->id())->latest()->take(7)->get();
         return view('livewire.index', compact('fetch_my_messages', 'fetch_others_messages', 'active_users'));
     }
 }

@@ -17,10 +17,10 @@ use App\Http\Controllers\ChatController;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::middleware(['auth'])->group(function () {
+    Route::resource('dashboard', ChatController::class)->names('dashboard');
+    Route::resource('chat', ChatController::class)->names('chat');;
 
+});
 
 require __DIR__.'/auth.php';
-
-Route::middleware(['auth'])->group(function () {
-    Route::resource('dashboard', ChatController::class)->names('dashboard');;
-});
